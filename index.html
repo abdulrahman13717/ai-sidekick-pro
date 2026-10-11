@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Sidekick Pro — مساعد ذكاء اصطناعي في متصفّحك</title>
+    <meta
+      name="description"
+      content="إضافة متصفّح تضيف مساعد ذكاء اصطناعي لأي صفحة: محادثة، تلخيص، ترجمة، كتابة ذكية، وقراءة صوتية. عربي وإنجليزي."
+    />
+    <style>
+      :root {
+        --bg: #fbfaf8;
+        --surface: #ffffff;
+        --text: #1a1814;
+        --muted: #5d5850;
+        --line: #e6e1d8;
+        --accent: #b63d08;
+        /* نصّ الزر المعبّأ: أبيض على برتقالي الفاتح، وداكن على برتقالي الداكن —
+           الأبيض على لكنة الداكن يقيس 2.26:1 وهو سقوط صريح تحت 4.5:1. */
+        --on-accent: #ffffff;
+        --radius: 14px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #14130f;
+          --surface: #1c1a16;
+          --text: #f2efe9;
+          --muted: #a9a29a;
+          --line: #302d27;
+          --accent: #fb923c;
+          --on-accent: #14130f;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        line-height: 1.75;
+        font-size: 17px;
+      }
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 16px 72px;
+      }
+      header.top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 20px 0;
+        border-bottom: 1px solid var(--line);
+        flex-wrap: wrap;
+      }
+      .brand {
+        font-weight: 700;
+        font-size: 19px;
+      }
+      .brand span {
+        color: var(--accent);
+      }
+      .langbtn {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 16px;
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .langbtn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      h1 {
+        font-size: 30px;
+        line-height: 1.35;
+        margin: 40px 0 12px;
+      }
+      h2 {
+        font-size: 21px;
+        margin: 44px 0 10px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+      }
+      h3 {
+        font-size: 16px;
+        margin: 24px 0 6px;
+      }
+      .lead {
+        font-size: 19px;
+        color: var(--muted);
+        margin: 0 0 28px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        margin: 18px 0;
+      }
+      .feat {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .feat div {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+      }
+      .feat b {
+        display: block;
+        margin-bottom: 2px;
+      }
+      .feat small {
+        color: var(--muted);
+        font-size: 14.5px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 15.5px;
+      }
+      th,
+      td {
+        text-align: start;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .cta {
+        display: inline-block;
+        background: var(--accent);
+        color: var(--on-accent);
+        text-decoration: none;
+        padding: 12px 26px;
+        border-radius: 999px;
+        font-weight: 600;
+        margin: 8px 6px 0 0;
+      }
+      .cta.ghost {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+      }
+      a {
+        color: var(--accent);
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        margin-top: 48px;
+        padding-top: 20px;
+        color: var(--muted);
+        font-size: 14.5px;
+      }
+      [data-lang] {
+        display: none;
+      }
+      html[lang="ar"] main[data-lang="ar"],
+      html[lang="en"] main[data-lang="en"] {
+        display: block;
+      }
+      html[lang="ar"] span[data-lang="ar"],
+      html[lang="en"] span[data-lang="en"] {
+        display: inline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <div class="brand">AI Sidekick <span>Pro</span></div>
+        <button class="langbtn" id="lang" type="button">
+          <span data-lang="ar">English</span><span data-lang="en">العربية</span>
+        </button>
+      </header>
+
+      <!-- ═══════════ العربية ═══════════ -->
+      <main data-lang="ar">
+        <h1>مساعد ذكاء اصطناعي في متصفّحك — على أي صفحة</h1>
+        <p class="lead">
+          إضافة متصفّح تفتح لوحة جانبية تفهم الصفحة التي تقرؤها: تلخّص، تترجم،
+          تجيب، وتكتب معك. بالعربية والإنجليزية.
+        </p>
+
+        <div class="feat">
+          <div>
+            <b>تلخيص وسؤال</b>
+            <small>خلاصة أي صفحة في نقاط، واسأل عمّا فيها</small>
+          </div>
+          <div>
+            <b>ترجمة فورية</b>
+            <small>ظلّل أي نصّ فتظهر ترجمته في مكانه</small>
+          </div>
+          <div>
+            <b>كتابة ذكية</b>
+            <small>هذّب رسالتك أو ولّد رداً في أي صندوق كتابة</small>
+          </div>
+          <div>
+            <b>قراءة صوتية وإملاء</b>
+            <small>اسمع الصفحة، أو تكلّم فتُكتب كلماتك</small>
+          </div>
+        </div>
+
+        <h2>كيف تحصل عليها</h2>
+        <p>
+          برمجية بالاشتراك (SaaS): تُثبّت الإضافة من متجر كروم، ثم يفتح الاشتراك
+          <b>مفتاح ترخيص</b> تُدخله مرة واحدة في الإعدادات فتُفعَّل الميزات
+          المدفوعة. لا شيء يُشحن ولا تسليم بشرياً — التفعيل آليّ بالمفتاح.
+        </p>
+        <div class="card">
+          <h3>الاشتراك</h3>
+          <p>
+            شهري <b>PRICE_MONTHLY</b> · سنوي <b>PRICE_YEARLY</b> (أوفر). وتبقى
+            نسخة مجانية بحصّة يومية محدودة.
+          </p>
+          <a class="cta" href="CHECKOUT_URL">ابدأ الاشتراك</a>
+          <a class="cta ghost" href="CHROME_STORE_URL">ثبّت الإضافة</a>
+        </div>
+
+        <h2 id="privacy">سياسة الخصوصية</h2>
+        <p style="color: var(--muted)">آخر تحديث: ١١ أكتوبر ٢٠٢٦</p>
+        <p>
+          <b>القاعدة الأولى: لا يخرج شيء من جهازك قبل موافقتك الصريحة.</b> تعرض
+          الإضافة عند أول تشغيل شريحةً تسمّي كل ما سيخرج وإلى مَن، ولا تتصل بأي
+          خدمة قبل أن تضغط «موافق».
+        </p>
+        <p>
+          <b>محادثاتك وصورك وملاحظاتك تُحفظ على جهازك وحده</b> (تخزين المتصفّح
+          المحلي). لا نرفعها ولا نراها. ومفتاح المزوّد الذي تُدخله يبقى على جهازك
+          ولا يُرسل إلا إلى مُصدِره.
+        </p>
+
+        <h3>ما يخرج من الجهاز، ولماذا، وإلى مَن</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>البيانات</th>
+              <th>إلى مَن ولماذا</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>نصّ الصفحة وما تظلّله</td>
+              <td>
+                حين تطلب شرحه أو تلخيصه — إلى نموذج الذكاء: Gemini أو OpenRouter
+                بمفتاحك، أو خادمنا إن لم تضف مفتاحاً
+              </td>
+            </tr>
+            <tr>
+              <td>ما تكتبه في المحادثة والكتابة الذكية</td>
+              <td>إلى نموذج الذكاء نفسه</td>
+            </tr>
+            <tr>
+              <td>الصورة التي ترفقها</td>
+              <td>إلى نموذج الذكاء نفسه</td>
+            </tr>
+            <tr>
+              <td>النصّ الذي تترجمه</td>
+              <td>إلى ترجمة Google</td>
+            </tr>
+            <tr>
+              <td>صوتك حين تستعمل المايك</td>
+              <td>يحوّله متصفّحك نصّاً عبر خوادم Google</td>
+            </tr>
+            <tr>
+              <td>رقم عشوائي لجهازك لا يدلّ عليك</td>
+              <td>إلى خادمنا ليعدّ حصّتك اليومية</td>
+            </tr>
+            <tr>
+              <td>عنوان IP الذي يصل به طلبك</td>
+              <td>
+                إلى خادمنا، عدّاداً يومياً يمنع إساءة الاستخدام — عدداً فقط بلا
+                محتوى، ويُحذف تلقائياً بعد ٢٤ ساعة
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          خادمنا لا يحفظ نصّ رسائلك ولا يسجّلها: يمرّرها إلى المزوّد ويحتفظ
+          بعدّادَي الحصّة أعلاه وحدهما، وكلٌّ منهما ينتهي بعد ٢٤ ساعة.
+          <b>ومزوّد النموذج قد يستعمل ما يصله لتحسين خدماته</b>، فلا ترسل ما لا
+          تريد مشاركته.
+        </p>
+
+        <h3>الاستخدام المحدود (Limited Use)</h3>
+        <ul>
+          <li>
+            نستعمل ما نجمعه <b>لغرض الإضافة المعلن وحده</b>: الإجابة والتلخيص
+            والترجمة والكتابة والقراءة الصوتية.
+          </li>
+          <li>
+            <b>لا نبيع بياناتك ولا ننقلها</b> لأي طرف إلا ما تقتضيه الميزة التي
+            طلبتَها (المزوّد الذي اخترته)، أو التزامٌ قانوني، أو حماية من إساءة
+            الاستخدام.
+          </li>
+          <li><b>لا إعلانات</b> ولا استهداف إعلاني ببياناتك، بأي شكل.</li>
+          <li>
+            <b>لا يقرأ بشرٌ بياناتك.</b> لا نطالع محادثاتك ولا صفحاتك، ولا نحفظها
+            أصلاً على خادمنا.
+          </li>
+        </ul>
+
+        <h3>الصلاحيات ولماذا</h3>
+        <ul>
+          <li>
+            <b>قراءة الصفحة الحالية</b> — لتلخيصها وترجمتها والعمل على ما تظلّله.
+          </li>
+          <li><b>اللوحة الجانبية والقائمة بالزرّ الأيمن</b> — واجهة الإضافة.</li>
+          <li>
+            <b>التخزين المحلي</b> — محادثاتك وإعداداتك وملاحظاتك على جهازك.
+          </li>
+          <li><b>القراءة الصوتية</b> — نطق النصّ الذي تطلبه.</li>
+        </ul>
+
+        <h3>حقوقك</h3>
+        <p>
+          حذف كل ما يتعلّق بك فعلٌ واحد: إزالة الإضافة تمحو كل ما حُفظ على جهازك.
+          وعدّادات الحصّة على خادمنا تنتهي من نفسها بعد ٢٤ ساعة. وللسؤال أو
+          الشكوى: البريد في آخر الصفحة.
+        </p>
+        <p>
+          الإضافة ليست موجّهة لمن هم تحت ١٣ سنة، ولا نجمع بيانات منهم عن قصد.
+        </p>
+
+        <h2>الشروط والاسترداد</h2>
+        <ul>
+          <li>
+            الدفع والفواتير والضريبة يتولّاها <b>Lemon Squeezy</b> بائعاً رسمياً
+            (Merchant of Record) — لا نرى بيانات بطاقتك ولا نخزّنها.
+          </li>
+          <li>
+            الاسترداد خلال <b>١٤ يوماً</b> من الشراء إن لم تعمل الإضافة كما
+            وُصفت — راسلنا ونعيد المبلغ.
+          </li>
+          <li>الاشتراك يتجدّد تلقائياً، وتلغيه وقت ما شئت من بوّابة المشترك.</li>
+          <li>
+            الخدمة تعتمد على مزوّدي نماذج خارجيين؛ انقطاعُهم قد يوقف بعض الميزات
+            مؤقّتاً.
+          </li>
+        </ul>
+      </main>
+
+      <!-- ═══════════ English ═══════════ -->
+      <main data-lang="en">
+        <h1>An AI assistant inside your browser — on any page</h1>
+        <p class="lead">
+          A browser extension with a side panel that understands the page you are
+          reading: it summarizes, translates, answers, and writes with you. In
+          Arabic and English.
+        </p>
+
+        <div class="feat">
+          <div>
+            <b>Summarize &amp; ask</b>
+            <small>Any page in a few points, then ask about it</small>
+          </div>
+          <div>
+            <b>Instant translation</b>
+            <small>Select any text and see it translated in place</small>
+          </div>
+          <div>
+            <b>Smart writing</b>
+            <small>Polish your message or draft a reply in any text box</small>
+          </div>
+          <div>
+            <b>Read aloud &amp; dictation</b>
+            <small>Listen to a page, or speak and have it typed</small>
+          </div>
+        </div>
+
+        <h2>How to get it</h2>
+        <p>
+          Subscription software (SaaS): install the extension from the Chrome Web
+          Store, then your subscription issues a <b>license key</b> you enter once
+          in Settings to unlock the paid features. Nothing is shipped and no human
+          fulfilment is involved — activation is automatic via the key.
+        </p>
+        <div class="card">
+          <h3>Subscription</h3>
+          <p>
+            Monthly <b>PRICE_MONTHLY</b> · Yearly <b>PRICE_YEARLY</b> (save more).
+            A free tier with a limited daily allowance remains available.
+          </p>
+          <a class="cta" href="CHECKOUT_URL">Subscribe</a>
+          <a class="cta ghost" href="CHROME_STORE_URL">Install the extension</a>
+        </div>
+
+        <h2>Privacy Policy</h2>
+        <p style="color: var(--muted)">Last updated: 11 October 2026</p>
+        <p>
+          <b
+            >First rule: nothing leaves your device before you explicitly
+            agree.</b
+          >
+          On first run the extension shows a screen naming everything that will
+          leave and to whom, and it contacts no service until you press
+          &ldquo;I agree&rdquo;.
+        </p>
+        <p>
+          <b>Your chats, images and notes are stored on your device only</b>
+          (local browser storage). We do not upload them and we do not see them.
+          The provider key you enter stays on your device and is sent only to its
+          issuer.
+        </p>
+
+        <h3>What leaves the device, why, and to whom</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>To whom and why</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Page text and what you select</td>
+              <td>
+                When you ask to explain or summarize it — to the AI model: Gemini
+                or OpenRouter with your key, or our server if you have not added
+                one
+              </td>
+            </tr>
+            <tr>
+              <td>What you type in chat and smart writing</td>
+              <td>To the same AI model</td>
+            </tr>
+            <tr>
+              <td>Images you attach</td>
+              <td>To the same AI model</td>
+            </tr>
+            <tr>
+              <td>Text you translate</td>
+              <td>To Google Translate</td>
+            </tr>
+            <tr>
+              <td>Your voice when you use the mic</td>
+              <td>Your browser turns it into text through Google servers</td>
+            </tr>
+            <tr>
+              <td>A random number for your device that does not identify you</td>
+              <td>To our server, to count your daily allowance</td>
+            </tr>
+            <tr>
+              <td>The IP address your request arrives from</td>
+              <td>
+                To our server, as a daily counter to prevent abuse — a count only,
+                no content, deleted automatically after 24 hours
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Our server does not store or log the text of your messages: it passes
+          them to the provider and keeps only the two quota counters above, each
+          expiring after 24 hours.
+          <b
+            >The model provider may use what it receives to improve its
+            services</b
+          >, so do not send what you do not want to share.
+        </p>
+
+        <h3>Limited Use</h3>
+        <ul>
+          <li>
+            We use what we collect
+            <b>solely for the extension's stated purpose</b>: answering,
+            summarizing, translating, writing and reading aloud.
+          </li>
+          <li>
+            <b>We do not sell or transfer your data</b> to anyone except as the
+            feature you requested requires (the provider you chose), or for legal
+            compliance, or to protect against abuse.
+          </li>
+          <li>
+            <b>No advertising</b> and no ad targeting with your data, in any form.
+          </li>
+          <li>
+            <b>No humans read your data.</b> We do not review your chats or pages,
+            and we do not store them on our server at all.
+          </li>
+        </ul>
+
+        <h3>Permissions and why</h3>
+        <ul>
+          <li>
+            <b>Read the current page</b> — to summarize, translate, and act on
+            your selection.
+          </li>
+          <li><b>Side panel and right-click menu</b> — the extension's interface.</li>
+          <li><b>Local storage</b> — your chats, settings and notes, on your device.</li>
+          <li><b>Text to speech</b> — to read aloud what you ask for.</li>
+        </ul>
+
+        <h3>Your rights</h3>
+        <p>
+          Deleting everything about you is one action: removing the extension
+          erases everything stored on your device. The quota counters on our
+          server expire by themselves after 24 hours. For questions or complaints,
+          the email is at the foot of this page.
+        </p>
+        <p>
+          The extension is not directed to anyone under 13, and we do not
+          knowingly collect data from them.
+        </p>
+
+        <h2>Terms &amp; Refunds</h2>
+        <ul>
+          <li>
+            Payments, invoices and tax are handled by <b>Lemon Squeezy</b> as
+            Merchant of Record — we never see or store your card details.
+          </li>
+          <li>
+            Refund within <b>14 days</b> of purchase if the extension does not
+            work as described — email us and we will refund.
+          </li>
+          <li>
+            The subscription renews automatically; cancel any time from the
+            customer portal.
+          </li>
+          <li>
+            The service depends on third-party model providers; their outages may
+            temporarily disable some features.
+          </li>
+        </ul>
+      </main>
+
+      <footer>
+        <span data-lang="ar"
+          >AI Sidekick Pro · للتواصل والدعم:
+          <a href="mailto:SUPPORT_EMAIL">SUPPORT_EMAIL</a></span
+        >
+        <span data-lang="en"
+          >AI Sidekick Pro · Contact and support:
+          <a href="mailto:SUPPORT_EMAIL">SUPPORT_EMAIL</a></span
+        >
+      </footer>
+    </div>
+
+    <script>
+      // تبديل اللغة: يقلب lang وdir على <html> فينكشف القسم المقابل بالـCSS.
+      const btn = document.getElementById("lang");
+      const apply = (lang) => {
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+        try {
+          localStorage.setItem("lang", lang);
+        } catch (e) {
+          /* تصفّح خاص أو تخزين محجوب — نتجاهل */
+        }
+      };
+      btn.addEventListener("click", () => {
+        apply(document.documentElement.lang === "ar" ? "en" : "ar");
+      });
+      try {
+        const saved = localStorage.getItem("lang");
+        if (saved === "en" || saved === "ar") apply(saved);
+      } catch (e) {
+        /* نبقى على العربية */
+      }
+    </script>
+  </body>
+</html>
